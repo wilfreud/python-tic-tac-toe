@@ -1,5 +1,6 @@
 from subprocess import run
 from random import choice
+from popGUI import screenMSG
 
 # Set of positions
 toe = {
@@ -29,7 +30,6 @@ def toeDisplay(): # Function for toe display
 # Displaying Infos
 def infoDisplay():
     run('cls', shell=True)
-    
     print(f"Order:  {p1[0]}   {p2[0]}")
     
     # Notes
@@ -41,13 +41,15 @@ def infoDisplay():
             [L3] [M3] [R3]
         Requirements: A little abstraction in your mind <3
                       Make sure to use ONLY the notation shown above!
-                      Player 1 has 'X' and player 2 has 'O'\n""")
+                      Player 1 has 'X' and player 2 has 'O'
+                      Press 'CTRL + C' to end the game
+                      """)
                       
     toeDisplay()
     print()
 infoDisplay()
 
-inList = ['M2'] # This list contains the cases filled during the game
+inList = ['M2'] # This list contains the cases already filled during the game
 
 def ruleList():
     resuList = {
@@ -66,19 +68,27 @@ def ruleList():
 
 role_log = [] # This list is like a log of the game. Contains the order in which players played
 
-# Filling the board
-def playInput(message, markk): # Function for player input
+thisScript = __file__.replace('\\', '/').split('/')[-1]  # Gets curent file name
+
+def exitCheck(tourCount0): # This function checks the condition for a game TIE
     exitCode = ruleList()
     if exitCode == "EOG":
-        run(f"msg * \"{role_log[-1]} WON !\"")
-        quit()
-    ruleList()
+        screenMSG(thisScript, role_log[-1])
+    elif tourCount0 == 7: 
+        screenMSG(thisScript)
+
+# Filling the board
+def playInput(message, markk, tourCount): # Function for player input
+    exitCheck(tourCount)
+
     while True: # To make sure the playe will input ONLY an allowed value
+
         try: # This is for handling CTRL+C Keyboard Interruption
             x = input(f"{message}: ").upper()
         except KeyboardInterrupt:
             print("\n\tYou ended the game!")
             quit()
+
         try:
             toe[x]
             if x in inList:
@@ -93,6 +103,10 @@ def playInput(message, markk): # Function for player input
     role_log.append(message)
     infoDisplay()
 
-for _ in range(4): # Calling 'Input' function for each playergit
-    playInput(p1[0].capitalize(), p1[1])
-    playInput(p2[0].capitalize(), p2[1])
+playcount = 0 # This variable simply counts the rounds
+
+for _ in range(4): # Calling 'Input' function for each player
+    playInput(p1[0].capitalize(), p1[1], playcount)
+    playcount += 1
+    playInput(p2[0].capitalize(), p2[1], playcount)
+    playcount += 1
